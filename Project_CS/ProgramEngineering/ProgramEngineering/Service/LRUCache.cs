@@ -1,59 +1,61 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace ProgramEngineering.Service
+﻿using System.Collections.Specialized;
+public class LRUCache
 {
-    public class LRUCache
+    private OrderedDictionary _dict;
+    private readonly int _capacity;
+    public LRUCache(int capacity)
     {
-        private int _numOfCells;
-        private Dictionary<string, string> _cache;
-        private List<KeyValuePair<string, string>> _orderList;
+        _dict = new OrderedDictionary();
+        _capacity = capacity;
+    }
 
-        public LRUCache(int numberOfCacheCells)
+    public string Get(string key)
+    {
+        // checking if the dict containskey
+        if (_dict.Count != 0 && _dict.Contains(key))
         {
-            this._numOfCells = numberOfCacheCells;
-            _cache = new Dictionary<string,string>(_numOfCells);
-            _orderList = new List<KeyValuePair<string, string>>(_numOfCells);
+            var val = (string)_dict[key];
+
+            //updating the position because it has been used
+            _dict.Remove(key);
+            _dict.Add(key, val);
+
+            return val;
         }
+        return null;
+    }
 
-        public void Set(string key, string value)
+    public void Set(string key, string value)
+    {
+        // If contains Key
+        if (!_dict.Contains(key))
         {
-            if (_cache.Count == _numOfCells) // the cache is full we need to remove 1
+            // checking if capacity exceeded
+            if (_dict.Count < _capacity)
             {
-                var toRemove = _orderList[0];
-                if (_cache.ContainsKey(key))
-                {
-                    _cache.Remove(toRemove.Key);
-                }
-                _orderList.Remove(toRemove);
+                _dict.Add(key, value);
             }
-            _orderList.Add(new KeyValuePair<string, string>(key, value));
-            _cache[key] = value;
+            else
+            {
+                // Capacity exceeded, delete last and insert at the beginning
+                _dict.RemoveAt(0);
+                _dict.Add(key, value);
+            }
         }
-
-        public string Get(string key)
+        // Updating the position and value as it has been used
+        else
         {
-            if (!_cache.ContainsKey(key))
-            {
-                return null;
-            }
-
-            //put the key and value to the back of the ordered list
-            var tempCacheCell = _orderList.FirstOrDefault(x=>x.Key == key);
-            _orderList.Remove(tempCacheCell);
-            _orderList.Add(tempCacheCell);
-            return _cache[key];
+            _dict.Remove(key);
+            _dict.Add(key, value);
         }
+    }
 
-        public void Remove(string key)
+    public void Remove(string key)
+    {
+        // checking if the dict containskey
+        if (_dict.Count != 0 && _dict.Contains(key))
         {
-            if (!_cache.ContainsKey(key))
-            {
-                return;
-            }
-
-            _orderList.RemoveAll(x=>x.Key == key);
-            _cache.Remove(key);
+            _dict.Remove(key);
         }
     }
 }

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ProgramEngineering.Service;
+
 
 namespace ProgramEngineering
 {
@@ -38,7 +38,9 @@ namespace ProgramEngineering
                     cache.Set("Walter", "White");
                     cache.Set("Jesse", "James");
                     var val = cache.Get("Jesse");
-                    await context.Response.WriteAsync($"Hello World!\n {val}");
+                    cache.Remove("Walter");
+                    var val2 = cache.Get("Walter");
+                    await context.Response.WriteAsync($"My LRU Cache\n {val} \n {val2}");
                 });
             });
         }
